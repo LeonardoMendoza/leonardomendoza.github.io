@@ -1,12 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido Orlandolo8</title>
+  <meta charset="UTF-8">
+  <title>Hora del Profesor</title>
 </head>
 <body>
-    <h1>Hola</h1>
-    <img src="assets/hola-pta.jpeg">
+  <h2 id="prof_time">La hora del profesor: (sin definir)</h2>
+
+  <button onclick="setTeacherTime()">Profesor: Actualizar hora</button>
+  <button onclick="getTeacherTime()">Alumno: Consultar hora</button>
+
+  <p id="student_time"></p>
+
+  <script>
+    const API_URL = "https://REGION-PROJECT.cloudfunctions.net/time_api"; 
+    // Reemplaza con tu URL real
+
+    async function setTeacherTime() {
+      const res = await fetch(`${API_URL}?action=set_teacher_time`);
+      const data = await res.json();
+      document.getElementById("prof_time").innerText =
+        "La hora del profesor: " + data.professor_time;
+    }
+
+    async function getTeacherTime() {
+      const res = await fetch(`${API_URL}?action=get_teacher_time`);
+      const data = await res.json();
+      if (data.status === "ok") {
+        document.getElementById("prof_time").innerText =
+          "La hora del profesor: " + data.professor_time;
+        document.getElementById("student_time").innerText =
+          "Hora del alumno: " + data.student_time;
+      } else {
+        alert(data.message);
+      }
+    }
+  </script>
 </body>
 </html>
