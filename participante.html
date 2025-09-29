@@ -70,16 +70,14 @@
       if (clickCount > 8) {
         const messages = [
           "no spamees el boton",
-          "escribe continuar para seguir",
           "respeta las reglas",
-          "detente un momento",
           "ahora si puedes continuar"
         ];
 
         for (let i = 0; i < messages.length; i++) {
           let input = "";
           while (input.trim().toLowerCase() !== messages[i]) {
-            input = prompt(`NO PRESIONES SEGUIDO EL BOTÓN! Escribe el siguiente texto para continuar: ${messages[i]}`);
+            input = prompt(`NO PRESIONES SEGUIDO EL BOTÓN! Escribe y da enter al siguiente texto para continuar: ${messages[i]}`);
           }
         }
 
