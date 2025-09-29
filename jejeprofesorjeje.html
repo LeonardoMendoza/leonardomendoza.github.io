@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel del Profesor</title>
+</head>
+<body>
+  <h2>Hora del Profesor</h2>
+  <button onclick="setTeacherTime()">Actualizar Hora</button>
+  <p id="prof_time">Aún no se ha actualizado</p>
+
+  <script>
+    // Reemplaza con tu URL de Cloud Run
+    const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
+
+    async function setTeacherTime() {
+      const res = await fetch(`${API_URL}?action=set_teacher_time`);
+      const data = await res.json();
+      if (data.status === "ok") {
+        document.getElementById("prof_time").innerText =
+          "Hora actualizada: " + data.professor_time;
+      } else {
+        alert("Error al actualizar: " + data.message);
+      }
+    }
+  </script>
+</body>
+</html>
