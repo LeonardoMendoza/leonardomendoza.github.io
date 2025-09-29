@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Hora del Alumno</title>
+</head>
+<body>
+  <h2>Hora del Profesor</h2>
+  <p id="prof_time">(sin definir)</p>
+
+  <button onclick="getTeacherTime()">Actualizar mi hora</button>
+  <p id="student_time"></p>
+
+  <script>
+    const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
+
+    async function getTeacherTime() {
+      const res = await fetch(`${API_URL}?action=get_teacher_time`);
+      const data = await res.json();
+      if (data.status === "ok") {
+        document.getElementById("prof_time").innerText =
+          "Hora del Profesor: " + data.professor_time;
+        document.getElementById("student_time").innerText =
+          "Mi hora: " + data.student_time;
+      } else {
+        alert(data.message);
+      }
+    }
+  </script>
+</body>
+</html>
