@@ -9,11 +9,10 @@
       margin: 40px;
       text-align: center;
     }
-    button {
+    button, input {
       padding: 10px 20px;
       font-size: 16px;
-      margin: 15px;
-      cursor: pointer;
+      margin: 10px;
     }
     p {
       font-size: 18px;
@@ -22,21 +21,35 @@
 </head>
 <body>
   <h1>Panel del Alumno</h1>
+
+  <div id="name_section">
+    <label for="student_name">Ingresa tu nombre:</label>
+    <input type="text" id="student_name" placeholder="Tu nombre">
+    <button onclick="setName()">Guardar nombre</button>
+  </div>
+
   <p id="prof_time">Hora del profesor: (aún no definida)</p>
-  <button onclick="getTeacherTime()">Actualizar mi hora</button>
+  <button id="update_btn" onclick="getTeacherTime()" disabled>Actualizar mi hora</button>
   <p id="student_time">Mi hora: (aún no definida)</p>
   <p id="first_student">Primero en presionar: (aún no definido)</p>
 
   <script>
-    // Reemplaza con la URL de tu API en Cloud Run / Cloud Functions
     const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
+    let studentName = "";
+
+    function setName() {
+      const input = document.getElementById("student_name");
+      if (!input.value.trim()) return alert("Debes ingresar tu nombre");
+      studentName = input.value.trim();
+      document.getElementById("name_section").style.display = "none"; // Oculta input
+      document.getElementById("update_btn").disabled = false; // Activa botón
+    }
 
     async function getTeacherTime() {
-      const name = prompt("Escribe tu nombre:"); // Pedimos el nombre del alumno
-      if (!name) return alert("Debes escribir un nombre");
+      if (!studentName) return alert("Debes ingresar tu nombre primero");
 
       try {
-        const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(name)}`);
+        const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(studentName)}`);
         const data = await res.json();
 
         if (data.status === "ok") {
@@ -49,7 +62,8 @@
           document.getElementById("first_student").innerText =
             "Primero en presionar: " + data.first_student + " a las " + data.first_time;
 
-          if (data.first_student === name) {
+          // Solo alert si es el primero
+          if (data.first_student === studentName) {
             alert("¡Felicidades! Fuiste el primero en presionar esta ronda.");
           }
 
