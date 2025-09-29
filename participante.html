@@ -51,13 +51,24 @@
 
       clickCount++;
       // Si hace más de 3 clicks, pedir confirmación
-      if (clickCount > 3) {
-        let continueText = "";
-        while (continueText.trim().toLowerCase() !== "continuar") {
-          continueText = prompt("No spamees el botón. Escribe 'continuar' para seguir.");
-        }
-        clickCount = 0; // Reinicia contador después de advertencia
-      }
+      if (clickCount > 2) {
+  const messages = [
+    "no spamees el botón",
+    "escribe continuar para seguir",
+    "respeta las reglas",
+    "detente un momento",
+    "ahora sí puedes continuar"
+  ];
+
+  for (let i = 0; i < messages.length; i++) {
+    let input = "";
+    while (input.trim().toLowerCase() !== messages[i]) {
+      input = prompt(`Mensaje ${i + 1}: ${messages[i]}`);
+    }
+  }
+
+  clickCount = 0; // Reinicia contador después de la advertencia
+}
 
       try {
         const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(studentName)}`);
