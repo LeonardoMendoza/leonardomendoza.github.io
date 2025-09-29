@@ -36,17 +36,28 @@
   <script>
     const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
     let studentName = "";
+    let clickCount = 0;
 
     function setName() {
       const input = document.getElementById("student_name");
       if (!input.value.trim()) return alert("Debes ingresar tu nombre");
       studentName = input.value.trim();
-      document.getElementById("name_section").style.display = "none"; // Oculta input
-      document.getElementById("update_btn").disabled = false; // Activa botón
+      document.getElementById("name_section").style.display = "none"; 
+      document.getElementById("update_btn").disabled = false; 
     }
 
     async function getTeacherTime() {
       if (!studentName) return alert("Debes ingresar tu nombre primero");
+
+      clickCount++;
+      // Si hace más de 3 clicks, pedir confirmación
+      if (clickCount > 3) {
+        let continueText = "";
+        while (continueText.trim().toLowerCase() !== "continuar") {
+          continueText = prompt("No spamees el botón. Escribe 'continuar' para seguir.");
+        }
+        clickCount = 0; // Reinicia contador después de advertencia
+      }
 
       try {
         const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(studentName)}`);
@@ -62,7 +73,6 @@
           document.getElementById("first_student").innerText =
             "Primero en presionar: " + data.first_student + " a las " + data.first_time;
 
-          // Solo alert si es el primero
           if (data.first_student === studentName) {
             alert("¡Felicidades! Fuiste el primero en presionar esta ronda.");
           }
