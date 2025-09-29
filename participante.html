@@ -22,6 +22,7 @@
 <body>
   <h1>Panel del Alumno</h1>
 
+  <!-- Sección para ingresar el nombre -->
   <div id="name_section">
     <label for="student_name">Ingresa tu nombre:</label>
     <input type="text" id="student_name" placeholder="Tu nombre">
@@ -34,11 +35,14 @@
   <p id="first_student">Primero en presionar: (aún no definido)</p>
 
   <script>
+    // URL de tu API en Cloud Run o Cloud Functions
     const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
+
     let studentName = "";
     let clickCount = 0;
     let firstClickTime = null;
 
+    // Guardar nombre del alumno y habilitar botón
     function setName() {
       const input = document.getElementById("student_name");
       if (!input.value.trim()) return alert("Debes ingresar tu nombre");
@@ -47,73 +51,71 @@
       document.getElementById("update_btn").disabled = false; 
     }
 
-   let clickCount = 0;
-let firstClickTime = null;
+    async function getTeacherTime() {
+      if (!studentName) return alert("Debes ingresar tu nombre primero");
 
-async function getTeacherTime() {
-  if (!studentName) return alert("Debes ingresar tu nombre primero");
+      const now = Date.now();
 
-  const now = Date.now();
-
-  // Control de reinicio por tiempo (10 segundos)
-  if (!firstClickTime) {
-    firstClickTime = now; // Primer click de la serie
-  } else if (now - firstClickTime > 10000) { // 10 segundos
-    clickCount = 0;
-    firstClickTime = now; // Reinicia el tiempo del primer click
-  }
-
-  clickCount++;
-
-  // Advertencia si hace más de 8 clicks antes de que pasen 10 segundos
-  if (clickCount > 8) {
-    const messages = [
-      "no spamees el boton",
-      "escribe continuar para seguir",
-      "respeta las reglas",
-      "detente un momento",
-      "ahora si puedes continuar"
-    ];
-
-    for (let i = 0; i < messages.length; i++) {
-      let input = "";
-      while (input.trim().toLowerCase() !== messages[i]) {
-        input = prompt(`NO PRESIONES SEGUIDO EL BOTÓN! Escribe el siguiente texto para continuar: ${messages[i]}`);
-      }
-    }
-
-    clickCount = 0;        // Reinicia contador después de la advertencia
-    firstClickTime = null; // Reinicia tiempo del primer click
-  }
-
-  // Ahora llamamos a la API
-  try {
-    const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(studentName)}`);
-    const data = await res.json();
-
-    if (data.status === "ok") {
-      document.getElementById("prof_time").innerText =
-        "Hora del profesor: " + data.professor_time;
-
-      document.getElementById("student_time").innerText =
-        "Mi hora: " + data.student_time;
-
-      document.getElementById("first_student").innerText =
-        "Primero en presionar: " + data.first_student + " a las " + data.first_time;
-
-      if (data.first_student === studentName) {
-        alert("¡Felicidades! Fuiste el primero en presionar esta ronda.");
+      // Reinicia contador si pasan más de 10 segundos desde el primer click
+      if (!firstClickTime) {
+        firstClickTime = now;
+      } else if (now - firstClickTime > 10000) { // 10 segundos
+        clickCount = 0;
+        firstClickTime = now;
       }
 
-    } else {
-      alert(data.message);
-    }
+      clickCount++;
 
-  } catch (err) {
-    console.error(err);
-    alert("Error al conectar con la API");
-  }
-}
+      // Advertencia si hace más de 8 clicks en menos de 10 segundos
+      if (clickCount > 8) {
+        const messages = [
+          "no spamees el boton",
+          "escribe continuar para seguir",
+          "respeta las reglas",
+          "detente un momento",
+          "ahora si puedes continuar"
+        ];
+
+        for (let i = 0; i < messages.length; i++) {
+          let input = "";
+          while (input.trim().toLowerCase() !== messages[i]) {
+            input = prompt(`NO PRESIONES SEGUIDO EL BOTÓN! Escribe el siguiente texto para continuar: ${messages[i]}`);
+          }
+        }
+
+        clickCount = 0;
+        firstClickTime = null;
+      }
+
+      // Llamada a la API
+      try {
+        const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(studentName)}`);
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          document.getElementById("prof_time").innerText =
+            "Hora del profesor: " + data.professor_time;
+
+          document.getElementById("student_time").innerText =
+            "Mi hora: " + data.student_time;
+
+          document.getElementById("first_student").innerText =
+            "Primero en presionar: " + (data.first_student ? `${data.first_student} a las ${data.first_time}` : "(aún no definido)");
+
+          // Alert solo si es el primero
+          if (data.first_student === studentName) {
+            alert("¡Felicidades! Fuiste el primero en presionar esta ronda.");
+          }
+
+        } else {
+          alert(data.message);
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al conectar con la API");
+      }
+    }
   </script>
 </body>
 </html>
