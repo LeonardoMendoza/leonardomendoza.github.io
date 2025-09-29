@@ -3,24 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>Panel del Profesor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+    button { padding: 10px 20px; font-size: 16px; margin: 15px; cursor: pointer; }
+    p { font-size: 18px; }
+  </style>
 </head>
 <body>
-  <h2>Hora del Profesor</h2>
-  <button onclick="setTeacherTime()">Actualizar Hora</button>
-  <p id="prof_time">Aún no se ha actualizado</p>
+  <h1>Panel del Profesor</h1>
+
+  <p id="prof_time">Hora del profesor: (aún no definida)</p>
+  <button onclick="setTeacherTime()">Actualizar hora del profesor</button>
+
+  <h2>Primer alumno en presionar esta ronda</h2>
+  <p id="first_student">Aún no hay alumno</p>
+  <button onclick="getFirstStudent()">Actualizar primer alumno</button>
 
   <script>
-    // Reemplaza con tu URL de Cloud Run
     const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
 
     async function setTeacherTime() {
-      const res = await fetch(`${API_URL}?action=set_teacher_time`);
-      const data = await res.json();
-      if (data.status === "ok") {
-        document.getElementById("prof_time").innerText =
-          "Hora actualizada: " + data.professor_time;
-      } else {
-        alert("Error al actualizar: " + data.message);
+      try {
+        const res = await fetch(`${API_URL}?action=set_teacher_time`);
+        const data = await res.json();
+        if (data.status === "ok") {
+          document.getElementById("prof_time").innerText =
+            "Hora actualizada: " + data.professor_time;
+          document.getElementById("first_student").innerText = "Aún no hay alumno"; // reinicia la ronda
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error al actualizar la hora del profesor");
+      }
+    }
+
+    async function getFirstStudent() {
+      try {
+        // Usamos un nombre ficticio, porque la API necesita un nombre
+        const res = await fetch(`${API_URL}?action=get_teacher_time&name=ProfesorQuery`);
+        const data = await res.json();
+        if (data.status === "ok") {
+          document.getElementById("first_student").innerText =
+            data.first_student
+              ? `${data.first_student} a las ${data.first_time}`
+              : "Aún no hay alumno";
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error al obtener el primer alumno");
       }
     }
   </script>
