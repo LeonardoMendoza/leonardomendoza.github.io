@@ -3,27 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <title>Hora del Alumno</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 15px;
+      cursor: pointer;
+    }
+    p {
+      font-size: 18px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Hora del Profesor</h2>
-  <p id="prof_time">(sin definir)</p>
-
+  <h1>Panel del Alumno</h1>
+  <p id="prof_time">Hora del profesor: (aún no definida)</p>
   <button onclick="getTeacherTime()">Actualizar mi hora</button>
-  <p id="student_time"></p>
+  <p id="student_time">Mi hora: (aún no definida)</p>
+  <p id="first_student">Primero en presionar: (aún no definido)</p>
 
   <script>
+    // Reemplaza con la URL de tu API en Cloud Run / Cloud Functions
     const API_URL = "https://hora-profesor-alumno-boton-187339689223.us-south1.run.app";
 
     async function getTeacherTime() {
-      const res = await fetch(`${API_URL}?action=get_teacher_time`);
-      const data = await res.json();
-      if (data.status === "ok") {
-        document.getElementById("prof_time").innerText =
-          "Hora del Profesor: " + data.professor_time;
-        document.getElementById("student_time").innerText =
-          "Mi hora: " + data.student_time;
-      } else {
-        alert(data.message);
+      const name = prompt("Escribe tu nombre:"); // Pedimos el nombre del alumno
+      if (!name) return alert("Debes escribir un nombre");
+
+      try {
+        const res = await fetch(`${API_URL}?action=get_teacher_time&name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          document.getElementById("prof_time").innerText =
+            "Hora del profesor: " + data.professor_time;
+
+          document.getElementById("student_time").innerText =
+            "Mi hora: " + data.student_time;
+
+          document.getElementById("first_student").innerText =
+            "Primero en presionar: " + data.first_student + " a las " + data.first_time;
+
+          if (data.first_student === name) {
+            alert("¡Felicidades! Fuiste el primero en presionar esta ronda.");
+          }
+
+        } else {
+          alert(data.message);
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al conectar con la API");
       }
     }
   </script>
